@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Artista — RH Musical</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">RH <span>Musical</span></a>
+  <ul>
+    <li><a href="artistas.html">Artistas</a></li>
+    <li><a href="patrocinio.html">Patrocínio</a></li>
+    <li><a href="cadastro-artista.html">Sou Artista</a></li>
+    <li><a href="cadastro-empresa.html">Sou Contratante</a></li>
+  </ul>
+</nav>
+
+<section>
+  <div class="form-container">
+    <h2>🎸 Cadastro de Artista</h2>
+    <p style="color:var(--muted); margin-bottom:1.5rem; font-size:0.9rem;">Crie seu perfil e seja encontrado por contratantes de todo o país.</p>
+
+    <form id="formArtista" onsubmit="cadastrar(event)" autocomplete="off">
+      <div class="form-group">
+        <label>Nome artístico *</label>
+        <input type="text" placeholder="Seu nome ou nome da banda" required>
+      </div>
+
+      <div class="form-group">
+        <label>Nome completo *</label>
+        <input type="text" placeholder="Nome completo" required>
+      </div>
+
+      <div class="form-group">
+        <label>E-mail *</label>
+        <input type="email" placeholder="seu@email.com" required>
+      </div>
+
+      <div class="form-group">
+        <label>Telefone / WhatsApp *</label>
+        <input type="tel" placeholder="(00) 00000-0000" required>
+      </div>
+
+      <div class="form-group">
+        <label>Cidade / Estado *</label>
+        <input type="text" placeholder="Ex: Tatuí - SP" required>
+      </div>
+
+      <div class="form-group">
+        <label>Estilo Musical *</label>
+        <select required>
+          <option value="">Selecione...</option>
+          <option>Sertanejo</option>
+          <option>Rock</option>
+          <option>MPB</option>
+          <option>Jazz</option>
+          <option>Forró</option>
+          <option>Pop</option>
+          <option>Gospel</option>
+          <option>Clássico</option>
+          <option>Pagode</option>
+          <option>Outro</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Instrumentos / Habilidades</label>
+        <input type="text" placeholder="Ex: Violão, Voz, Teclado">
+      </div>
+
+      <div class="form-group">
+        <label>Sobre você / Biografia</label>
+        <textarea placeholder="Conte um pouco sobre sua trajetória musical..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Link do Portfólio (YouTube, SoundCloud, etc.)</label>
+        <input type="url" placeholder="https://youtube.com/...">
+      </div>
+
+      <div class="form-group">
+        <label>Valor médio por apresentação (R$)</label>
+        <input type="number" placeholder="Ex: 500">
+      </div>
+
+      <div class="form-group">
+        <label>Plano</label>
+        <select>
+          <option value="gratuito">Gratuito</option>
+          <option value="premium">Premium — R$ 29/mês</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem;">Criar Perfil</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <p>© 2024 RH Musical</p>
+</footer>
+
+<script type="module">
+  import { db } from './firebase.js';
+  import { collection, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  document.getElementById('formArtista').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const btn = f.querySelector('button[type=submit]');
+    btn.textContent = 'Salvando...';
+    btn.disabled = true;
+    try {
+      await addDoc(collection(db, 'artistas'), {
+        nomeArtistico: f[0].value,
+        nome: f[1].value,
+        email: f[2].value,
+        telefone: f[3].value,
+        cidade: f[4].value,
+        estilo: f[5].value,
+        instrumentos: f[6].value,
+        bio: f[7].value,
+        portfolio: f[8].value,
+        valor: f[9].value,
+        plano: f[10].value,
+        data: new Date().toLocaleDateString('pt-BR')
+      });
+      alert('✅ Cadastro realizado com sucesso!\nEm breve seu perfil estará visível na plataforma.');
+      f.reset();
+    } catch (err) {
+      alert('❌ Erro ao salvar. Tente novamente.');
+      console.error(err);
+    }
+    btn.textContent = 'Criar Perfil';
+    btn.disabled = false;
+  });
+</script>
+
+</body>
+</html>

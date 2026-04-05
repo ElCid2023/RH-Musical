@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — RH Musical</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .admin-wrap { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+    /* LOGIN */
+    .login-box {
+      max-width: 380px;
+      margin: 6rem auto;
+      background: var(--bg2);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+    .login-box h2 { color: var(--accent); margin-bottom: 1.5rem; }
+
+    /* TOPBAR */
+    .admin-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .admin-topbar h1 { color: var(--accent); font-size: 1.5rem; }
+
+    /* STATS */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat {
+      background: var(--bg2);
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      padding: 1.2rem;
+      text-align: center;
+    }
+    .stat .num { font-size: 2.5rem; font-weight: bold; color: var(--accent); }
+    .stat p { color: var(--muted); font-size: 0.9rem; margin-top: 0.3rem; }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .tab {
+      padding: 0.6rem 1.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+    .tab.ativo { background: var(--accent); color: var(--bg); font-weight: bold; }
+
+    /* TABELA */
+    .tabela-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th {
+      background: var(--bg2);
+      color: var(--accent);
+      padding: 0.8rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--accent);
+    }
+    td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid rgba(63,192,255,0.15);
+      color: var(--muted);
+      vertical-align: top;
+    }
+    tr:hover td { background: rgba(14,80,111,0.4); }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+    .badge-premium { background: #fff80833; color: #fff808; border: 1px solid #fff808; }
+    .badge-free { background: rgba(63,192,255,0.15); color: var(--accent); border: 1px solid var(--accent); }
+
+    .btn-del {
+      background: transparent;
+      border: 1px solid #ff4d4d;
+      color: #ff4d4d;
+      border-radius: 6px;
+      padding: 0.3rem 0.7rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+    .btn-del:hover { background: #ff4d4d; color: #fff; }
+
+    .busca-admin {
+      padding: 0.6rem 1rem;
+      background: var(--bg2);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+      width: 100%;
+      max-width: 320px;
+      margin-bottom: 1rem;
+    }
+
+    .vazio { text-align: center; color: var(--muted); padding: 2rem; }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="telaLogin">
+  <div class="login-box">
+    <h2>🔐 Admin RH Musical</h2>
+    <form onsubmit="fazerLogin(event)">
+      <div class="form-group">
+        <label>Usuário</label>
+        <input type="text" id="usuario" placeholder="admin" required>
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="senha" placeholder="••••••" required>
+      </div>
+      <p id="erroLogin" style="color:#ff4d4d; font-size:0.85rem; margin-bottom:0.8rem; display:none;">Usuário ou senha incorretos.</p>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Entrar</button>
+    </form>
+    <p style="margin-top:1rem; font-size:0.8rem; color:var(--muted);">
+      Acesso restrito à equipe RH Musical
+    </p>
+  </div>
+</div>
+
+<!-- PAINEL -->
+<div id="telaAdmin" style="display:none;">
+  <nav>
+    <a href="index.html" class="logo">RH <span>Musical</span></a>
+    <ul>
+      <li><a href="index.html">← Voltar ao Site</a></li>
+      <li><a href="#" onclick="sair()" style="color:#ff4d4d;">Sair</a></li>
+    </ul>
+  </nav>
+
+  <div class="admin-wrap">
+    <div class="admin-topbar">
+      <h1>⚙️ Painel Administrativo</h1>
+      <span style="color:var(--muted); font-size:0.85rem;" id="dataHora"></span>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat">
+        <div class="num" id="totalArtistas">0</div>
+        <p>🎸 Artistas Cadastrados</p>
+      </div>
+      <div class="stat">
+        <div class="num" id="totalEmpresas">0</div>
+        <p>🏢 Contratantes Cadastrados</p>
+      </div>
+      <div class="stat">
+        <div class="num" id="totalPremium">0</div>
+        <p>⭐ Planos Premium</p>
+      </div>
+      <div class="stat">
+        <div class="num" id="totalGeral">0</div>
+        <p>👥 Total de Usuários</p>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab ativo" onclick="mudarTab('artistas', this)">🎸 Artistas</button>
+      <button class="tab" onclick="mudarTab('empresas', this)">🏢 Contratantes</button>
+    </div>
+
+    <input class="busca-admin" type="text" id="buscaAdmin" placeholder="🔍 Buscar cadastro..." oninput="renderTabela()">
+
+    <div class="tabela-wrap" id="tabelaWrap"></div>
+  </div>
+</div>
+
+<script type="module">
+  import { db } from './firebase.js';
+  import { collection, getDocs, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  // ── CREDENCIAIS (altere aqui) ──
+  const ADMIN_USER = 'admin';
+  const ADMIN_PASS = 'rhmusical2024';
+
+  let abaAtiva = 'artistas';
+  let dadosArtistas = [];
+  let dadosEmpresas = [];
+
+  window.fazerLogin = function(e) {
+    e.preventDefault();
+    const u = document.getElementById('usuario').value;
+    const s = document.getElementById('senha').value;
+    if (u === ADMIN_USER && s === ADMIN_PASS) {
+      document.getElementById('telaLogin').style.display = 'none';
+      document.getElementById('telaAdmin').style.display = 'block';
+      iniciarPainel();
+    } else {
+      document.getElementById('erroLogin').style.display = 'block';
+    }
+  }
+
+  window.sair = function() {
+    document.getElementById('telaAdmin').style.display = 'none';
+    document.getElementById('telaLogin').style.display = 'block';
+    document.getElementById('usuario').value = '';
+    document.getElementById('senha').value = '';
+  }
+
+  async function iniciarPainel() {
+    atualizarRelogio();
+    setInterval(atualizarRelogio, 1000);
+    await carregarDados();
+  }
+
+  async function carregarDados() {
+    const [snapA, snapE] = await Promise.all([
+      getDocs(collection(db, 'artistas')),
+      getDocs(collection(db, 'empresas'))
+    ]);
+    dadosArtistas = snapA.docs.map(d => ({ id: d.id, ...d.data() }));
+    dadosEmpresas = snapE.docs.map(d => ({ id: d.id, ...d.data() }));
+    atualizarStats();
+    renderTabela();
+  }
+
+  function atualizarRelogio() {
+    document.getElementById('dataHora').textContent = new Date().toLocaleString('pt-BR');
+  }
+
+  function atualizarStats() {
+    const premium = [...dadosArtistas, ...dadosEmpresas].filter(x => x.plano && x.plano !== 'gratuito' && x.plano !== 'basico').length;
+    document.getElementById('totalArtistas').textContent = dadosArtistas.length;
+    document.getElementById('totalEmpresas').textContent = dadosEmpresas.length;
+    document.getElementById('totalPremium').textContent = premium;
+    document.getElementById('totalGeral').textContent = dadosArtistas.length + dadosEmpresas.length;
+  }
+
+  window.mudarTab = function(aba, btn) {
+    abaAtiva = aba;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('ativo'));
+    btn.classList.add('ativo');
+    document.getElementById('buscaAdmin').value = '';
+    renderTabela();
+  }
+
+  window.renderTabela = function() {
+    const busca = document.getElementById('buscaAdmin').value.toLowerCase();
+    const dados = abaAtiva === 'artistas' ? dadosArtistas : dadosEmpresas;
+    const filtrado = dados.filter(d =>
+      Object.values(d).some(v => String(v).toLowerCase().includes(busca))
+    );
+    const wrap = document.getElementById('tabelaWrap');
+    if (filtrado.length === 0) {
+      wrap.innerHTML = '<p class="vazio">Nenhum cadastro encontrado.</p>';
+      return;
+    }
+    if (abaAtiva === 'artistas') {
+      wrap.innerHTML = `
+        <table>
+          <thead><tr>
+            <th>#</th><th>Nome Artístico</th><th>Nome</th><th>E-mail</th>
+            <th>Telefone</th><th>Cidade</th><th>Estilo</th>
+            <th>Portfólio</th><th>Valor</th><th>Plano</th><th>Data</th><th></th>
+          </tr></thead>
+          <tbody>${filtrado.map((a, i) => `
+            <tr>
+              <td>${i+1}</td>
+              <td style="color:var(--text)">${a.nomeArtistico}</td>
+              <td>${a.nome}</td><td>${a.email}</td><td>${a.telefone}</td>
+              <td>${a.cidade}</td>
+              <td><span class="tag">${a.estilo}</span></td>
+              <td>${a.portfolio ? `<a href="${a.portfolio}" target="_blank" style="color:var(--accent)">🔗 Ver</a>` : '—'}</td>
+              <td>R$ ${a.valor || '—'}</td>
+              <td><span class="badge ${a.plano === 'premium' ? 'badge-premium' : 'badge-free'}">${a.plano}</span></td>
+              <td>${a.data}</td>
+              <td><button class="btn-del" onclick="excluir('artistas','${a.id}')">Excluir</button></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`;
+    } else {
+      wrap.innerHTML = `
+        <table>
+          <thead><tr>
+            <th>#</th><th>Empresa</th><th>Responsável</th><th>E-mail</th>
+            <th>Telefone</th><th>Cidade</th><th>Tipo</th>
+            <th>Orçamento</th><th>Plano</th><th>Data</th><th></th>
+          </tr></thead>
+          <tbody>${filtrado.map((a, i) => `
+            <tr>
+              <td>${i+1}</td>
+              <td style="color:var(--text)">${a.empresa}</td>
+              <td>${a.responsavel}</td><td>${a.email}</td><td>${a.telefone}</td>
+              <td>${a.cidade}</td><td>${a.tipo}</td>
+              <td>R$ ${a.orcamento || '—'}</td>
+              <td><span class="badge ${a.plano === 'premium' ? 'badge-premium' : 'badge-free'}">${a.plano}</span></td>
+              <td>${a.data}</td>
+              <td><button class="btn-del" onclick="excluir('empresas','${a.id}')">Excluir</button></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+  }
+
+  window.excluir = async function(colecao, id) {
+    if (!confirm('Deseja excluir este cadastro?')) return;
+    await deleteDoc(doc(db, colecao, id));
+    await carregarDados();
+  }
+</script>
+
+</body>
+</html>

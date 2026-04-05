@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patrocínio — RH Musical</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">RH <span>Musical</span></a>
+  <ul>
+    <li><a href="artistas.html">Artistas</a></li>
+    <li><a href="patrocinio.html">Patrocínio</a></li>
+    <li><a href="cadastro-artista.html">Sou Artista</a></li>
+    <li><a href="cadastro-empresa.html">Sou Contratante</a></li>
+  </ul>
+</nav>
+
+<section>
+  <h2>🌟 Seja um Patrocinador</h2>
+  <p style="text-align:center; color:var(--muted); max-width:600px; margin:0 auto 3rem;">
+    Alcance músicos, produtores e empresários do setor musical. Anuncie sua marca na plataforma RH Musical.
+  </p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="icon">🎵</div>
+      <h3>Lojas de Instrumentos</h3>
+      <p>Alcance músicos que estão ativamente buscando oportunidades e equipamentos.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🍺</div>
+      <h3>Bares e Restaurantes</h3>
+      <p>Divulgue seu espaço para músicos e contratantes que buscam locais para eventos.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🎤</div>
+      <h3>Estúdios de Gravação</h3>
+      <p>Conecte-se com artistas que precisam de espaço profissional para gravar.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📱</div>
+      <h3>Produtos Eletrônicos</h3>
+      <p>Equipamentos de som, microfones e acessórios para o público certo.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:3rem;">
+    <h2>Pacotes de Patrocínio</h2>
+    <div class="planos" style="margin-top:1.5rem;">
+      <div class="plano">
+        <h3>Bronze</h3>
+        <div class="preco">R$ 99/mês</div>
+        <ul>
+          <li>Logo no rodapé</li>
+          <li>Link para seu site</li>
+          <li>500 impressões/mês</li>
+        </ul>
+        <a href="#contato" class="btn btn-secondary">Contratar</a>
+      </div>
+      <div class="plano destaque">
+        <h3>⭐ Ouro</h3>
+        <div class="preco">R$ 299/mês</div>
+        <ul>
+          <li>Banner na página inicial</li>
+          <li>Destaque na busca</li>
+          <li>5.000 impressões/mês</li>
+          <li>Relatório mensal</li>
+        </ul>
+        <a href="#contato" class="btn btn-primary">Contratar</a>
+      </div>
+      <div class="plano">
+        <h3>Platina</h3>
+        <div class="preco">R$ 599/mês</div>
+        <ul>
+          <li>Banner em todas as páginas</li>
+          <li>Post nas redes sociais</li>
+          <li>Impressões ilimitadas</li>
+          <li>Suporte dedicado</li>
+        </ul>
+        <a href="#contato" class="btn btn-secondary">Contratar</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="contato" style="margin-top:3rem;">
+    <div class="form-container">
+      <h2>📩 Fale Conosco</h2>
+      <form onsubmit="enviar(event)">
+        <div class="form-group">
+          <label>Nome da Empresa *</label>
+          <input type="text" required placeholder="Sua empresa">
+        </div>
+        <div class="form-group">
+          <label>E-mail *</label>
+          <input type="email" required placeholder="contato@empresa.com">
+        </div>
+        <div class="form-group">
+          <label>Pacote de interesse</label>
+          <select>
+            <option>Bronze — R$ 99/mês</option>
+            <option>Ouro — R$ 299/mês</option>
+            <option>Platina — R$ 599/mês</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Mensagem</label>
+          <textarea placeholder="Conte mais sobre sua empresa..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Enviar</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2024 RH Musical — Parcerias: Lojas de instrumentos, barzinhos, restaurantes, espaços para eventos</p>
+</footer>
+
+<script>
+  function enviar(e) {
+    e.preventDefault();
+    alert('✅ Mensagem enviada! Entraremos em contato em breve.');
+    e.target.reset();
+  }
+</script>
+
+</body>
+</html>
