@@ -31,6 +31,11 @@
   <p>🌟 Espaço Patrocinador — <a href="patrocinio.html" style="color:#fff808;">Anuncie aqui e alcance músicos e empresários</a></p>
 </div>
 
+<section id="secaoPatrocinadores" style="display:none;">
+  <h2>🌟 Nossos Patrocinadores</h2>
+  <div id="gridPatrocinadores" style="display:flex; flex-wrap:wrap; gap:1rem; justify-content:center;"></div>
+</section>
+
 <section>
   <h2>Como Funciona</h2>
   <div class="cards">
@@ -110,6 +115,25 @@
   <p>© 2024 RH Musical — Conectando talentos ao mercado musical</p>
   <p style="margin-top:0.5rem;">JB Musical</p>
 </footer>
+
+<script type="module">
+  import { db } from './firebase.js';
+  import { collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const snap = await getDocs(query(collection(db, 'patrocinadores'), where('status', '==', 'pago')));
+  const pagos = snap.docs.map(d => d.data());
+
+  if (pagos.length > 0) {
+    document.getElementById('secaoPatrocinadores').style.display = 'block';
+    document.getElementById('gridPatrocinadores').innerHTML = pagos.map(p => `
+      <div style="background:var(--bg2);border:1px solid #fff808;border-radius:12px;padding:1.2rem 2rem;text-align:center;min-width:180px;">
+        <div style="font-size:1.5rem;margin-bottom:0.3rem;">🌟</div>
+        <div style="color:#fff808;font-weight:bold;font-size:1rem;">${p.empresa}</div>
+        <div style="color:var(--muted);font-size:0.8rem;margin-top:0.2rem;">${p.cidade || ''}</div>
+      </div>
+    `).join('');
+  }
+</script>
 
 </body>
 </html>

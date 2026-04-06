@@ -203,7 +203,7 @@
 
 <script type="module">
   import { db } from './firebase.js';
-  import { collection, getDocs, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { collection, getDocs, deleteDoc, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   // ── CREDENCIAIS (altere aqui) ──
   const ADMIN_USER = 'admin';
@@ -334,7 +334,7 @@
         <table>
           <thead><tr>
             <th>#</th><th>Empresa</th><th>E-mail</th><th>Cidade</th>
-            <th>Pacote</th><th>Mensagem</th><th>Data</th><th></th>
+            <th>Pacote</th><th>Mensagem</th><th>Status</th><th>Data</th><th></th>
           </tr></thead>
           <tbody>${filtrado.map((a, i) => `
             <tr>
@@ -344,6 +344,13 @@
               <td>${a.cidade || '—'}</td>
               <td><span class="badge badge-premium">${a.pacote}</span></td>
               <td>${a.mensagem || '—'}</td>
+              <td>
+                <select onchange="alterarStatus('${a.id}', this.value)" style="background:var(--bg2);border:1px solid var(--accent);color:var(--text);border-radius:6px;padding:0.2rem 0.5rem;">
+                  <option value="pendente" ${(a.status||'pendente')==='pendente'?'selected':''} style="color:#fff808">🟡 Pendente</option>
+                  <option value="pago" ${a.status==='pago'?'selected':''} style="color:#00ff88">🟢 Pago</option>
+                  <option value="cancelado" ${a.status==='cancelado'?'selected':''} style="color:#ff4d4d">🔴 Cancelado</option>
+                </select>
+              </td>
               <td>${a.data}</td>
               <td><button class="btn-del" onclick="excluir('patrocinadores','${a.id}')">Excluir</button></td>
             </tr>`).join('')}
@@ -355,6 +362,11 @@
   window.excluir = async function(colecao, id) {
     if (!confirm('Deseja excluir este cadastro?')) return;
     await deleteDoc(doc(db, colecao, id));
+    await carregarDados();
+  }
+
+  window.alterarStatus = async function(id, status) {
+    await updateDoc(doc(db, 'patrocinadores', id), { status });
     await carregarDados();
   }
 </script>
