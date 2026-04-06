@@ -103,9 +103,12 @@
   <p>© 2024 RH Musical</p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script type="module">
   import { db } from './firebase.js';
   import { collection, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  emailjs.init('_4jT4NMpMKCuYypaJ');
 
   document.getElementById('formArtista').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -113,22 +116,29 @@
     const btn = f.querySelector('button[type=submit]');
     btn.textContent = 'Salvando...';
     btn.disabled = true;
+    const artista = {
+      nomeArtistico: f[0].value,
+      nome: f[1].value,
+      email: f[2].value,
+      telefone: f[3].value,
+      cidade: f[4].value,
+      estilo: f[5].value,
+      instrumentos: f[6].value,
+      bio: f[7].value,
+      portfolio: f[8].value,
+      valor: f[9].value,
+      plano: f[10].value,
+      data: new Date().toLocaleDateString('pt-BR')
+    };
     try {
-      await addDoc(collection(db, 'artistas'), {
-        nomeArtistico: f[0].value,
-        nome: f[1].value,
-        email: f[2].value,
-        telefone: f[3].value,
-        cidade: f[4].value,
-        estilo: f[5].value,
-        instrumentos: f[6].value,
-        bio: f[7].value,
-        portfolio: f[8].value,
-        valor: f[9].value,
-        plano: f[10].value,
-        data: new Date().toLocaleDateString('pt-BR')
+      await addDoc(collection(db, 'artistas'), artista);
+      await emailjs.send('service_6t3r6i8', 'template_ujtpyv8h', {
+        nome: artista.nomeArtistico,
+        email: artista.email,
+        cidade: artista.cidade,
+        plano: artista.plano
       });
-      alert('✅ Cadastro realizado com sucesso!\nEm breve seu perfil estará visível na plataforma.');
+      alert('✅ Cadastro realizado com sucesso!\nVocê receberá um e-mail de confirmação em breve.');
       f.reset();
     } catch (err) {
       alert('❌ Erro ao salvar. Tente novamente.');
