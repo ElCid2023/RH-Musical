@@ -132,6 +132,14 @@
     };
     try {
       await addDoc(collection(db, 'artistas'), artista);
+    } catch (err) {
+      alert('❌ Erro ao salvar cadastro. Tente novamente.');
+      console.error('Firebase erro:', err);
+      btn.textContent = 'Criar Perfil';
+      btn.disabled = false;
+      return;
+    }
+    try {
       await emailjs.send('service_6t3r6i8', 'template_ujtpyv8h', {
         nome: artista.nomeArtistico,
         email: artista.email,
@@ -139,11 +147,11 @@
         plano: artista.plano
       });
       alert('✅ Cadastro realizado com sucesso!\nVocê receberá um e-mail de confirmação em breve.');
-      f.reset();
     } catch (err) {
-      alert('❌ Erro ao salvar. Tente novamente.');
-      console.error(err);
+      console.error('EmailJS erro:', err);
+      alert('✅ Cadastro realizado!\n⚠️ Não foi possível enviar o e-mail de confirmação.');
     }
+    f.reset();
     btn.textContent = 'Criar Perfil';
     btn.disabled = false;
   });
