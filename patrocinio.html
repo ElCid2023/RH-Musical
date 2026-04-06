@@ -88,7 +88,7 @@
   <div id="contato" style="margin-top:3rem;">
     <div class="form-container">
       <h2>📩 Fale Conosco</h2>
-      <form onsubmit="enviar(event)">
+      <form id="formPatrocinio">
         <div class="form-group">
           <label>Nome da Empresa *</label>
           <input type="text" required placeholder="Sua empresa">
@@ -111,6 +111,15 @@
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%;">Enviar</button>
       </form>
+
+      <div id="pixInfo" style="display:none; margin-top:1.5rem; background:var(--bg); border:1px solid #fff808; border-radius:10px; padding:1.5rem; text-align:center;">
+        <p style="color:#fff808; font-size:1.1rem; margin-bottom:1rem;">✅ Mensagem recebida! Finalize seu patrocínio via PIX:</p>
+        <p style="color:var(--muted); margin-bottom:0.5rem;">Chave PIX:</p>
+        <div style="background:var(--bg2); border:1px solid #fff808; border-radius:8px; padding:0.8rem; font-size:1.1rem; color:#fff808; letter-spacing:1px; margin-bottom:1rem;">
+          d8051b44-8730-4114-bab1-e3d419081607
+        </div>
+        <p style="color:var(--muted); font-size:0.85rem;">Após o pagamento, entraremos em contato em até 24h para ativar seu patrocínio.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -119,12 +128,47 @@
   <p>© 2024 RH Musical — Parcerias: Lojas de instrumentos, barzinhos, restaurantes, espaços para eventos</p>
 </footer>
 
-<script>
-  function enviar(e) {
+<script type="module">
+  import { db } from './firebase.js';
+  import { collection, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/+esm';
+
+  emailjs.init('_4jT4NMpMKCuYypaJ');
+
+  document.getElementById('formPatrocinio').addEventListener('submit', async (e) => {
     e.preventDefault();
-    alert('✅ Mensagem enviada! Entraremos em contato em breve.');
-    e.target.reset();
-  }
+    const f = e.target;
+    const btn = f.querySelector('button[type=submit]');
+    btn.textContent = 'Enviando...';
+    btn.disabled = true;
+    const patrocinador = {
+      empresa: f[0].value,
+      email: f[1].value,
+      pacote: f[2].value,
+      mensagem: f[3].value,
+      data: new Date().toLocaleDateString('pt-BR')
+    };
+    try {
+      await addDoc(collection(db, 'patrocinadores'), patrocinador);
+    } catch (err) {
+      console.error('Firebase erro:', err);
+    }
+    try {
+      await emailjs.send('service_6t3r6i8', 'template_ujtpv8h', {
+        nome: patrocinador.empresa,
+        email: patrocinador.email,
+        cidade: patrocinador.pacote,
+        plano: patrocinador.pacote
+      });
+    } catch (err) {
+      console.error('EmailJS erro:', err);
+    }
+    f.reset();
+    document.getElementById('formPatrocinio').style.display = 'none';
+    document.getElementById('pixInfo').style.display = 'block';
+    btn.textContent = 'Enviar';
+    btn.disabled = false;
+  });
 </script>
 
 </body>
