@@ -98,6 +98,10 @@
           <input type="email" required placeholder="contato@empresa.com">
         </div>
         <div class="form-group">
+          <label>Cidade / Estado *</label>
+          <input type="text" required placeholder="Ex: Tatuí - SP">
+        </div>
+        <div class="form-group">
           <label>Pacote de interesse</label>
           <select>
             <option>Bronze — R$ 99/mês</option>
@@ -144,8 +148,9 @@
     const patrocinador = {
       empresa: f[0].value,
       email: f[1].value,
-      pacote: f[2].value,
-      mensagem: f[3].value,
+      cidade: f[2].value,
+      pacote: f[3].value,
+      mensagem: f[4].value,
       data: new Date().toLocaleDateString('pt-BR')
     };
     try {
@@ -157,7 +162,7 @@
       await emailjs.send('service_6t3r6i8', 'template_ujtpv8h', {
         nome: patrocinador.empresa,
         email: patrocinador.email,
-        cidade: patrocinador.pacote,
+        cidade: patrocinador.cidade,
         plano: patrocinador.pacote
       });
     } catch (err) {

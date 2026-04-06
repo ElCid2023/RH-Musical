@@ -179,6 +179,10 @@
         <p>⭐ Planos Premium</p>
       </div>
       <div class="stat">
+        <div class="num" id="totalPatrocinadores">0</div>
+        <p>🌟 Patrocinadores</p>
+      </div>
+      <div class="stat">
         <div class="num" id="totalGeral">0</div>
         <p>👥 Total de Usuários</p>
       </div>
@@ -188,6 +192,7 @@
     <div class="tabs">
       <button class="tab ativo" onclick="mudarTab('artistas', this)">🎸 Artistas</button>
       <button class="tab" onclick="mudarTab('empresas', this)">🏢 Contratantes</button>
+      <button class="tab" onclick="mudarTab('patrocinadores', this)">🌟 Patrocinadores</button>
     </div>
 
     <input class="busca-admin" type="text" id="buscaAdmin" placeholder="🔍 Buscar cadastro..." oninput="renderTabela()">
@@ -207,6 +212,7 @@
   let abaAtiva = 'artistas';
   let dadosArtistas = [];
   let dadosEmpresas = [];
+  let dadosPatrocinadores = [];
 
   window.fazerLogin = function(e) {
     e.preventDefault();
@@ -235,12 +241,14 @@
   }
 
   async function carregarDados() {
-    const [snapA, snapE] = await Promise.all([
+    const [snapA, snapE, snapP] = await Promise.all([
       getDocs(collection(db, 'artistas')),
-      getDocs(collection(db, 'empresas'))
+      getDocs(collection(db, 'empresas')),
+      getDocs(collection(db, 'patrocinadores'))
     ]);
     dadosArtistas = snapA.docs.map(d => ({ id: d.id, ...d.data() }));
     dadosEmpresas = snapE.docs.map(d => ({ id: d.id, ...d.data() }));
+    dadosPatrocinadores = snapP.docs.map(d => ({ id: d.id, ...d.data() }));
     atualizarStats();
     renderTabela();
   }
@@ -254,6 +262,7 @@
     document.getElementById('totalArtistas').textContent = dadosArtistas.length;
     document.getElementById('totalEmpresas').textContent = dadosEmpresas.length;
     document.getElementById('totalPremium').textContent = premium;
+    document.getElementById('totalPatrocinadores').textContent = dadosPatrocinadores.length;
     document.getElementById('totalGeral').textContent = dadosArtistas.length + dadosEmpresas.length;
   }
 
@@ -267,7 +276,7 @@
 
   window.renderTabela = function() {
     const busca = document.getElementById('buscaAdmin').value.toLowerCase();
-    const dados = abaAtiva === 'artistas' ? dadosArtistas : dadosEmpresas;
+    const dados = abaAtiva === 'artistas' ? dadosArtistas : abaAtiva === 'empresas' ? dadosEmpresas : dadosPatrocinadores;
     const filtrado = dados.filter(d =>
       Object.values(d).some(v => String(v).toLowerCase().includes(busca))
     );
@@ -299,7 +308,7 @@
             </tr>`).join('')}
           </tbody>
         </table>`;
-    } else {
+    } else if (abaAtiva === 'empresas') {
       wrap.innerHTML = `
         <table>
           <thead><tr>
@@ -317,6 +326,26 @@
               <td><span class="badge ${a.plano === 'premium' ? 'badge-premium' : 'badge-free'}">${a.plano}</span></td>
               <td>${a.data}</td>
               <td><button class="btn-del" onclick="excluir('empresas','${a.id}')">Excluir</button></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`;
+    } else {
+      wrap.innerHTML = `
+        <table>
+          <thead><tr>
+            <th>#</th><th>Empresa</th><th>E-mail</th><th>Cidade</th>
+            <th>Pacote</th><th>Mensagem</th><th>Data</th><th></th>
+          </tr></thead>
+          <tbody>${filtrado.map((a, i) => `
+            <tr>
+              <td>${i+1}</td>
+              <td style="color:var(--text)">${a.empresa}</td>
+              <td>${a.email}</td>
+              <td>${a.cidade || '—'}</td>
+              <td><span class="badge badge-premium">${a.pacote}</span></td>
+              <td>${a.mensagem || '—'}</td>
+              <td>${a.data}</td>
+              <td><button class="btn-del" onclick="excluir('patrocinadores','${a.id}')">Excluir</button></td>
             </tr>`).join('')}
           </tbody>
         </table>`;
