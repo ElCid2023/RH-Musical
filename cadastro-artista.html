@@ -23,7 +23,7 @@
     <h2>🎸 Cadastro de Artista</h2>
     <p style="color:var(--muted); margin-bottom:1.5rem; font-size:0.9rem;">Crie seu perfil e seja encontrado por contratantes de todo o país.</p>
 
-    <form id="formArtista" onsubmit="cadastrar(event)" autocomplete="off">
+    <form id="formArtista" autocomplete="off">
       <div class="form-group">
         <label>Nome artístico *</label>
         <input type="text" placeholder="Seu nome ou nome da banda" required>
@@ -103,10 +103,10 @@
   <p>© 2024 RH Musical</p>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script type="module">
   import { db } from './firebase.js';
   import { collection, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/+esm';
 
   emailjs.init('_4jT4NMpMKCuYypaJ');
 
