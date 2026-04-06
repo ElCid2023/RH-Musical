@@ -135,7 +135,7 @@
     };
     try {
       await addDoc(collection(db, 'empresas'), empresa);
-      await emailjs.send('service_6t3r6i8', 'template_ujtpyv8h', {
+      await emailjs.send('service_6t3r6i8', 'template_ujtpv8h', {
         nome: empresa.responsavel,
         email: empresa.email,
         cidade: empresa.cidade,
