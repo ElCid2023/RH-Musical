@@ -90,6 +90,20 @@
       </div>
 
       <div class="form-group">
+        <label>Logo ou Foto da Empresa <span style="color:var(--muted);font-size:0.8rem;">(opcional)</span></label>
+        <input type="file" id="inputLogo" accept="image/*" style="background:var(--bg);border:1px solid var(--accent);border-radius:8px;padding:0.5rem;color:var(--text);width:100%;cursor:pointer;">
+        <div id="previewLogo" style="display:none;margin-top:0.8rem;text-align:center;">
+          <img id="imgPreviewLogo" src="" alt="Preview" style="max-height:120px;max-width:100%;border-radius:8px;border:1px solid var(--accent);">
+          <p style="color:var(--muted);font-size:0.78rem;margin-top:0.3rem;">Preview da imagem</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Site ou Página nas Redes Sociais <span style="color:var(--muted);font-size:0.8rem;">(opcional)</span></label>
+        <input type="url" id="inputSiteEmpresa" placeholder="Ex: https://instagram.com/suaempresa">
+      </div>
+
+      <div class="form-group">
         <label>Plano</label>
         <select>
           <option value="basico">Básico — Gratuito</option>
@@ -113,12 +127,41 @@
 
   emailjs.init('_4jT4NMpMKCuYypaJ');
 
+  const CLOUD_NAME = 'profborges';
+  const UPLOAD_PRESET = 'rh_musical';
+
+  document.getElementById('inputLogo').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) { document.getElementById('previewLogo').style.display = 'none'; return; }
+    document.getElementById('imgPreviewLogo').src = URL.createObjectURL(file);
+    document.getElementById('previewLogo').style.display = 'block';
+  });
+
+  async function uploadImagem(arquivo) {
+    const formData = new FormData();
+    formData.append('file', arquivo);
+    formData.append('upload_preset', UPLOAD_PRESET);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+      method: 'POST', body: formData
+    });
+    const data = await res.json();
+    return data.secure_url;
+  }
+
   document.getElementById('formEmpresa').addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = e.target;
     const btn = f.querySelector('button[type=submit]');
     btn.textContent = 'Salvando...';
     btn.disabled = true;
+
+    let logoUrl = '';
+    const arquivo = document.getElementById('inputLogo').files[0];
+    if (arquivo) {
+      try { logoUrl = await uploadImagem(arquivo); }
+      catch (err) { console.error('Erro no upload:', err); }
+    }
+
     const empresa = {
       empresa: f[0].value,
       responsavel: f[1].value,
@@ -130,6 +173,8 @@
       frequencia: f[7].value,
       orcamento: f[8].value,
       obs: f[9].value,
+      logo: logoUrl,
+      site: document.getElementById('inputSiteEmpresa').value,
       plano: f[10].value,
       data: new Date().toLocaleDateString('pt-BR')
     };
@@ -141,8 +186,17 @@
         cidade: empresa.cidade,
         plano: empresa.plano
       });
+      await emailjs.send('service_6t3r6i8', 'template_ijscyx2', {
+        tipo: 'Contratante',
+        nome: empresa.responsavel,
+        email: empresa.email,
+        cidade: empresa.cidade,
+        plano: empresa.plano,
+        data: empresa.data
+      });
       alert('✅ Cadastro realizado com sucesso!\nVocê receberá um e-mail de confirmação em breve.');
       f.reset();
+      document.getElementById('previewLogo').style.display = 'none';
     } catch (err) {
       alert('❌ Erro ao salvar. Tente novamente.');
       console.error(err);
