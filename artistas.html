@@ -12,14 +12,10 @@
   <a href="index.html" class="logo"><img src="Logo Rh Musical.png" alt="RH Musical" style="height:45px;"></a>
   <ul>
     <li><a href="artistas.html">Artistas</a></li>
+    <li><a href="contratantes.html">Contratantes</a></li>
     <li><a href="patrocinio.html">Patrocínio</a></li>
     <li><a href="cadastro-artista.html">Sou Artista</a></li>
     <li><a href="cadastro-empresa.html">Sou Contratante</a></li>
-  </ul>
-</nav>
-
-<section>
-  <h2>🎵 Encontre seu Artista</h2>
 
   <div class="filtros">
     <input type="text" id="busca" placeholder="🔍 Buscar por nome..." oninput="filtrar()">
@@ -48,70 +44,86 @@
   <p>© 2024 RH Musical</p>
 </footer>
 
-<script>
+<script type="module">
+  import { db } from './firebase.js';
+  import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
   const artistasFixos = [
-    { nome: "Carlos Violeiro", estilo: "Sertanejo", cidade: "Tatuí - SP", instrumento: "Violão e Voz", valor: "R$ 400", emoji: "🎸", premium: true, portfolio: "https://youtube.com" },
-    { nome: "Banda Acústica SP", estilo: "MPB", cidade: "São Paulo - SP", instrumento: "Banda completa", valor: "R$ 1.200", emoji: "🎶", premium: true, portfolio: "https://soundcloud.com" },
-    { nome: "Jazz Quartet", estilo: "Jazz", cidade: "Sorocaba - SP", instrumento: "Saxofone, Piano, Baixo, Bateria", valor: "R$ 800", emoji: "🎷", premium: false, portfolio: "" },
-    { nome: "Ana Forró", estilo: "Forró", cidade: "Tatuí - SP", instrumento: "Sanfona e Voz", valor: "R$ 350", emoji: "🪗", premium: false, portfolio: "" },
-    { nome: "Rock Garage", estilo: "Rock", cidade: "Sorocaba - SP", instrumento: "Banda de Rock", valor: "R$ 600", emoji: "🎤", premium: true, portfolio: "https://youtube.com" },
-    { nome: "Louvor & Graça", estilo: "Gospel", cidade: "Tatuí - SP", instrumento: "Coral e Banda", valor: "R$ 500", emoji: "🎹", premium: false, portfolio: "" },
+    { nome: "Carlos Violeiro", estilo: "Sertanejo", cidade: "Tatuí - SP", instrumento: "Violão e Voz", valor: "R$ 400", emoji: "🎸", premium: true, portfolio: "https://youtube.com", telefone: "15999990001", logo: "" },
+    { nome: "Banda Acústica SP", estilo: "MPB", cidade: "São Paulo - SP", instrumento: "Banda completa", valor: "R$ 1.200", emoji: "🎶", premium: true, portfolio: "https://soundcloud.com", telefone: "11999990002", logo: "" },
+    { nome: "Jazz Quartet", estilo: "Jazz", cidade: "Sorocaba - SP", instrumento: "Saxofone, Piano, Baixo, Bateria", valor: "R$ 800", emoji: "🎷", premium: false, portfolio: "", telefone: "15999990003", logo: "" },
+    { nome: "Ana Forró", estilo: "Forró", cidade: "Tatuí - SP", instrumento: "Sanfona e Voz", valor: "R$ 350", emoji: "🪗", premium: false, portfolio: "", telefone: "15999990004", logo: "" },
+    { nome: "Rock Garage", estilo: "Rock", cidade: "Sorocaba - SP", instrumento: "Banda de Rock", valor: "R$ 600", emoji: "🎤", premium: true, portfolio: "https://youtube.com", telefone: "15999990005", logo: "" },
+    { nome: "Louvor & Graça", estilo: "Gospel", cidade: "Tatuí - SP", instrumento: "Coral e Banda", valor: "R$ 500", emoji: "🎹", premium: false, portfolio: "", telefone: "15999990006", logo: "" },
   ];
 
-  function carregarArtistas() {
-    const cadastrados = JSON.parse(localStorage.getItem('rhm_artistas') || '[]').map(a => ({
-      nome: a.nomeArtistico,
-      estilo: a.estilo,
-      cidade: a.cidade,
-      instrumento: a.instrumentos,
-      valor: a.valor ? 'R$ ' + a.valor : '—',
-      emoji: '🎵',
-      premium: a.plano === 'premium',
-      portfolio: a.portfolio || ''
-    }));
+  async function carregarArtistas() {
+    const snap = await getDocs(collection(db, 'artistas'));
+    const cadastrados = snap.docs.map(d => {
+      const a = d.data();
+      return {
+        nome: a.nomeArtistico,
+        estilo: a.estilo,
+        cidade: a.cidade,
+        instrumento: a.instrumentos,
+        valor: a.valor ? 'R$ ' + a.valor : '—',
+        emoji: '🎵',
+        premium: a.plano === 'premium',
+        portfolio: a.portfolio || '',
+        telefone: (a.telefone || '').replace(/\D/g, ''),
+        logo: a.logo || ''
+      };
+    });
     return [...artistasFixos, ...cadastrados];
   }
 
-  let artistas = carregarArtistas();
-
   function renderizar(lista) {
     const grid = document.getElementById('grid');
-    grid.innerHTML = lista.map(a => `
-      <div class="artista-card">
-        <div class="foto">${a.emoji}</div>
-        <div class="info">
-          <h3>${a.nome} ${a.premium ? '<span style="color:#fff808;font-size:0.7rem;">⭐ Premium</span>' : ''}</h3>
-          <p>${a.instrumento}</p>
-          <p style="margin-top:0.3rem;">${a.cidade}</p>
-          <div style="margin-top:0.5rem;">
-            <span class="tag">${a.estilo}</span>
-            <span class="tag">${a.valor}</span>
+    grid.innerHTML = lista.map(a => {
+      const fotoHtml = a.logo
+        ? `<img src="${a.logo}" alt="${a.nome}" style="width:100%;height:160px;object-fit:cover;">`
+        : `<div class="foto">${a.emoji}</div>`;
+      const whatsappUrl = a.telefone
+        ? `https://wa.me/55${a.telefone}?text=${encodeURIComponent('Olá! Vi seu perfil no RH Musical e gostaria de saber mais sobre sua disponibilidade.')}`
+        : '';
+      return `
+        <div class="artista-card">
+          ${fotoHtml}
+          <div class="info">
+            <h3>${a.nome} ${a.premium ? '<span style="color:#fff808;font-size:0.7rem;">⭐ Premium</span>' : ''}</h3>
+            <p>${a.instrumento}</p>
+            <p style="margin-top:0.3rem;">${a.cidade}</p>
+            <div style="margin-top:0.5rem;">
+              <span class="tag">${a.estilo}</span>
+              <span class="tag">${a.valor}</span>
+            </div>
+            ${a.portfolio ? `<a href="${a.portfolio}" target="_blank" class="btn btn-secondary" style="width:100%;margin-top:0.8rem;padding:0.5rem;display:block;text-align:center;">🎬 Ver Portfólio</a>` : ''}
+            ${whatsappUrl ? `<a href="${whatsappUrl}" target="_blank" class="btn btn-primary" style="width:100%;margin-top:0.5rem;padding:0.5rem;display:block;text-align:center;">💬 WhatsApp</a>` : '<p style="color:var(--muted);font-size:0.8rem;margin-top:0.5rem;text-align:center;">Contato não informado</p>'}
           </div>
-          ${a.portfolio ? `<a href="${a.portfolio}" target="_blank" class="btn btn-secondary" style="width:100%;margin-top:0.8rem;padding:0.5rem;display:block;text-align:center;">🎬 Ver Portfólio</a>` : ''}
-          <button onclick="contatar('${a.nome}')" class="btn btn-secondary" style="width:100%;margin-top:0.5rem;padding:0.5rem;">Entrar em Contato</button>
-        </div>
-      </div>
-    `).join('');
+        </div>`;
+    }).join('');
   }
 
-  function filtrar() {
+  function filtrar(lista) {
     const busca = document.getElementById('busca').value.toLowerCase();
     const estilo = document.getElementById('estilo').value;
     const cidade = document.getElementById('cidade').value;
-
-    const resultado = artistas.filter(a =>
+    return lista.filter(a =>
       a.nome.toLowerCase().includes(busca) &&
       (estilo === '' || a.estilo === estilo) &&
       (cidade === '' || a.cidade === cidade)
     );
-    renderizar(resultado);
   }
 
-  function contatar(nome) {
-    alert(`📩 Para entrar em contato com ${nome}, faça login ou cadastre-se como contratante.`);
-  }
+  let artistas = [];
+  carregarArtistas().then(lista => {
+    artistas = lista;
+    renderizar(artistas);
+  });
 
-  renderizar(artistas);
+  document.getElementById('busca').addEventListener('input', () => renderizar(filtrar(artistas)));
+  document.getElementById('estilo').addEventListener('change', () => renderizar(filtrar(artistas)));
+  document.getElementById('cidade').addEventListener('change', () => renderizar(filtrar(artistas)));
 </script>
 
 </body>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contratantes — RH Musical</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo"><img src="Logo Rh Musical.png" alt="RH Musical" style="height:45px;"></a>
+  <ul>
+    <li><a href="artistas.html">Artistas</a></li>
+    <li><a href="contratantes.html">Contratantes</a></li>
+    <li><a href="patrocinio.html">Patrocínio</a></li>
+    <li><a href="cadastro-artista.html">Sou Artista</a></li>
+    <li><a href="cadastro-empresa.html">Sou Contratante</a></li>
+  </ul>
+</nav>
+
+<section>
+  <h2>🏢 Encontre um Contratante</h2>
+
+  <div class="filtros">
+    <input type="text" id="busca" placeholder="🔍 Buscar por nome...">
+    <select id="tipo">
+      <option value="">Todos os tipos</option>
+      <option>Bar / Restaurante</option>
+      <option>Casa de Shows</option>
+      <option>Espaço para Eventos</option>
+      <option>Hotel / Resort</option>
+      <option>Produtor de Eventos</option>
+      <option>Empresa Privada</option>
+      <option>Outro</option>
+    </select>
+    <select id="cidade">
+      <option value="">Todas as cidades</option>
+      <option>Tatuí - SP</option>
+      <option>Sorocaba - SP</option>
+      <option>São Paulo - SP</option>
+    </select>
+  </div>
+
+  <div class="artistas-grid" id="grid"></div>
+</section>
+
+<footer>
+  <p>© 2024 RH Musical</p>
+</footer>
+
+<script type="module">
+  import { db } from './firebase.js';
+  import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const contratantesFixos = [
+    { empresa: "Bar do Zé", responsavel: "José Silva", tipo: "Bar / Restaurante", cidade: "Tatuí - SP", estilos: "Sertanejo, Forró", orcamento: "R$ 500", telefone: "15999990010", logo: "", site: "" },
+    { empresa: "Espaço Eventos Prime", responsavel: "Ana Costa", tipo: "Espaço para Eventos", cidade: "Sorocaba - SP", estilos: "MPB, Jazz, Pop", orcamento: "R$ 1.500", telefone: "15999990011", logo: "", site: "" },
+    { empresa: "Casa de Shows Palco Livre", responsavel: "Carlos Mendes", tipo: "Casa de Shows", cidade: "São Paulo - SP", estilos: "Rock, Pop, MPB", orcamento: "R$ 2.000", telefone: "11999990012", logo: "", site: "" },
+  ];
+
+  async function carregarContratantes() {
+    const snap = await getDocs(collection(db, 'empresas'));
+    const cadastrados = snap.docs.map(d => {
+      const e = d.data();
+      return {
+        empresa: e.empresa,
+        responsavel: e.responsavel,
+        tipo: e.tipo,
+        cidade: e.cidade,
+        estilos: e.estilos || '—',
+        orcamento: e.orcamento ? 'R$ ' + e.orcamento : '—',
+        telefone: (e.telefone || '').replace(/\D/g, ''),
+        logo: e.logo || '',
+        site: e.site || '',
+        premium: e.plano === 'premium'
+      };
+    });
+    return [...contratantesFixos, ...cadastrados];
+  }
+
+  function renderizar(lista) {
+    const grid = document.getElementById('grid');
+    if (lista.length === 0) {
+      grid.innerHTML = '<p style="text-align:center;color:var(--muted);padding:2rem;">Nenhum contratante encontrado.</p>';
+      return;
+    }
+    grid.innerHTML = lista.map(c => {
+      const fotoHtml = c.logo
+        ? `<img src="${c.logo}" alt="${c.empresa}" style="width:100%;height:160px;object-fit:cover;">`
+        : `<div class="foto">🏢</div>`;
+      const whatsappUrl = c.telefone
+        ? `https://wa.me/55${c.telefone}?text=${encodeURIComponent('Olá! Vi seu perfil no RH Musical e gostaria de apresentar meu trabalho como artista.')}`
+        : '';
+      return `
+        <div class="artista-card">
+          ${fotoHtml}
+          <div class="info">
+            <h3>${c.empresa} ${c.premium ? '<span style="color:#fff808;font-size:0.7rem;">⭐ Premium</span>' : ''}</h3>
+            <p style="color:var(--muted);font-size:0.85rem;">${c.responsavel}</p>
+            <p style="margin-top:0.3rem;">${c.cidade}</p>
+            <div style="margin-top:0.5rem;">
+              <span class="tag">${c.tipo}</span>
+              <span class="tag">${c.orcamento}</span>
+            </div>
+            <p style="color:var(--muted);font-size:0.82rem;margin-top:0.5rem;">🎵 ${c.estilos}</p>
+            ${c.site ? `<a href="${c.site}" target="_blank" class="btn btn-secondary" style="width:100%;margin-top:0.8rem;padding:0.5rem;display:block;text-align:center;">🌐 Ver Site / Redes</a>` : ''}
+            ${whatsappUrl ? `<a href="${whatsappUrl}" target="_blank" class="btn btn-primary" style="width:100%;margin-top:0.5rem;padding:0.5rem;display:block;text-align:center;">💬 WhatsApp</a>` : '<p style="color:var(--muted);font-size:0.8rem;margin-top:0.5rem;text-align:center;">Contato não informado</p>'}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function filtrar(lista) {
+    const busca = document.getElementById('busca').value.toLowerCase();
+    const tipo = document.getElementById('tipo').value;
+    const cidade = document.getElementById('cidade').value;
+    return lista.filter(c =>
+      c.empresa.toLowerCase().includes(busca) &&
+      (tipo === '' || c.tipo === tipo) &&
+      (cidade === '' || c.cidade === cidade)
+    );
+  }
+
+  let contratantes = [];
+  carregarContratantes().then(lista => {
+    contratantes = lista;
+    renderizar(contratantes);
+  });
+
+  document.getElementById('busca').addEventListener('input', () => renderizar(filtrar(contratantes)));
+  document.getElementById('tipo').addEventListener('change', () => renderizar(filtrar(contratantes)));
+  document.getElementById('cidade').addEventListener('change', () => renderizar(filtrar(contratantes)));
+</script>
+
+</body>
+</html>
